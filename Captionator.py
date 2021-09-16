@@ -8,6 +8,7 @@ import threading
 from time import sleep
 from datetime import datetime
 from pyautogui import write
+from wx.core import Colour
 
 # Settings
 typingEnabled = False
@@ -20,6 +21,7 @@ textUpdateSpeed = 0.5
 q = queue.Queue()
 currentText = ''
 fullText = str(datetime.now()) + '\n'
+saveFilePath = None
 
 # Loading preferences
 try:
@@ -78,11 +80,13 @@ class MainFrame(wx.Frame):
         super(MainFrame, self).__init__(*args, **kw)
 
         pnl = wx.Panel(self)
+        pnl.SetBackgroundColour(Colour(32, 32, 32))
 
         self.st = wx.StaticText(pnl, label="Say Something")
         font = self.st.GetFont()
         font.PointSize += 5
         self.st.SetFont(font)
+        self.st.SetForegroundColour(Colour(240, 249, 250))
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.st, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
@@ -112,8 +116,11 @@ class MainFrame(wx.Frame):
         # Options
         options = wx.Menu()
 
-        save = options.Append(-1, "&Save...\tCtrl-S",
+        save = options.Append(-1, "&Save",
                               "Select captions save location")
+        saveAs = options.Append(wx.ID_ANY, "&Save As",
+                              "Save captions")
+        options.AppendSeparator()
         liveTyping = options.Append(wx.ID_ANY, "Toggle typing", "Toggle Live Typing", kind=wx.ITEM_CHECK)
         options.AppendSeparator()
         exitItem = options.Append(wx.ID_EXIT)
@@ -138,7 +145,8 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(menuBar)
 
-        self.Bind(wx.EVT_MENU, self.selectCaptionSaveFile, save)
+        self.Bind(wx.EVT_MENU, self.saveToFile, save)
+        self.Bind(wx.EVT_MENU, self.selectCaptionSaveFile, saveAs)
         self.Bind(wx.EVT_MENU, self.toggleTyping, liveTyping)
         self.Bind(wx.EVT_MENU, self.OnExit,  exitItem)
 
@@ -159,16 +167,33 @@ class MainFrame(wx.Frame):
         f.write(json.dumps(preferences))
         f.close()
 
+    def saveToFile(self, event):
+        global saveFilePath
+        if saveFilePath == None:
+            self.selectCaptionSaveFile(None)
+            return
+
+        global fullText
+        f = open(saveFilePath, 'a')
+        f.write(fullText)
+        f.close()
+
+        fullText = ''
+
+
     def selectCaptionSaveFile(self, event):
         with wx.FileDialog(self, "Select the save file location", wildcard='TXT files (*.txt)|*.txt', style=wx.FD_FILE_MUST_EXIST) as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return     # the user changed their mind
+            global saveFilePath
             saveFilePath = fileDialog.GetPath()
-
+            global fullText
             f = open(saveFilePath, 'a')
             f.write(fullText)
             f.close()
+
+            fullText = ''
 
 
 if __name__ == '__main__':
