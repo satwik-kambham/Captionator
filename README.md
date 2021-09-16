@@ -3,7 +3,7 @@
 Live speech to text using vosk.
 
 ## Build Instructions
-Requires python 3.6 - 3.8
+Requires python 3.6 - 3.9
 
 NOTE: Recommended to use a virtual environment.
 
