@@ -2,6 +2,8 @@
 
 Live speech to text using vosk.
 
+<img src="./Captionator.jpg" alt="Demo Image" width="300">
+
 ## Build Instructions
 Requires python 3.6 - 3.9
 
