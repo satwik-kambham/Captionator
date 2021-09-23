@@ -41,6 +41,7 @@ device_info = sd.query_devices(device=preferences['device'], kind='input')
 samplerate = int(device_info['default_samplerate'])
 model = vosk.Model('Model')
 
+
 # Callback for the speech to text function
 def callback(outdata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
@@ -48,9 +49,8 @@ def callback(outdata, frames, time, status):
         print(status, file=sys.stderr)
     q.put(bytes(outdata))
 
+
 # Detects text from speech input
-
-
 def speechToText():
     with sd.InputStream(samplerate=samplerate, blocksize=8000, device=preferences['device'], dtype='int16',
                         channels=1, callback=callback):
@@ -119,9 +119,10 @@ class MainFrame(wx.Frame):
         save = options.Append(-1, "&Save",
                               "Select captions save location")
         saveAs = options.Append(wx.ID_ANY, "&Save As",
-                              "Save captions")
+                                "Save captions")
         options.AppendSeparator()
-        liveTyping = options.Append(wx.ID_ANY, "Toggle typing", "Toggle Live Typing", kind=wx.ITEM_CHECK)
+        liveTyping = options.Append(
+            wx.ID_ANY, "Toggle typing", "Toggle Live Typing", kind=wx.ITEM_CHECK)
         options.AppendSeparator()
         exitItem = options.Append(wx.ID_EXIT)
 
@@ -135,7 +136,8 @@ class MainFrame(wx.Frame):
                 devices[x] = devicesRaw[x]['name']
 
         for x in devices:
-            device = deviceSelect.AppendRadioItem(x, "&" + devices[x], "Use " + devices[x])
+            device = deviceSelect.AppendRadioItem(
+                x, "&" + devices[x], "Use " + devices[x])
             if x == preferences['device']:
                 device.Check(True)
 
@@ -179,7 +181,6 @@ class MainFrame(wx.Frame):
         f.close()
 
         fullText = ''
-
 
     def selectCaptionSaveFile(self, event):
         with wx.FileDialog(self, "Select the save file location", wildcard='TXT files (*.txt)|*.txt', style=wx.FD_FILE_MUST_EXIST) as fileDialog:
